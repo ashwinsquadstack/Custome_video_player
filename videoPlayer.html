@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Custom video Player</title>
+    <style>
+        /* CSS styles for the container */
+        #videoContainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Adjust the height as needed */
+        }
+        
+        video::-webkit-media-controls-timeline
+         {
+            pointer-events: none !important;
+        }
+        
+        svg {
+            pointer-events: none;
+        }
+        
+        .MaterialIcon.material-icons {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="video" controls style="width: 90vw;" controlslist="nodownload noremoteplayback" disablepictureinpicture>
+            <source id="videoSource" src="">
+        </video>
+    </div>
+    <script>
+        const video = document.getElementById('video');
+        let supposedCurrentTime = 0;
+        const videoSource = document.getElementById('videoSource');
+        const nextButton = document.querySelector('.btn-raised.btn-primary.Pagination__btn.Pagination__btn--next');
+        if(nextButton !== null){
+            nextButton.disabled = true;
+            nextButton.style.backgroundColor = '#E0E0E0';
+        }
+        
+        let lastState = 'paused';
+        
+        const previousButton = document.querySelector('.btn-raised.btn-primary.Pagination__btn.Pagination__btn--previous');
+        console.log(previousButton);
+       if(previousButton !== null){
+            previousButton.disabled = true;
+            previousButton.style.backgroundColor = '#E0E0E0';
+       }
+        
+        
+        
+        // Put URL of the video here within the double inverted commas
+        const videoSourceURL = "<insert your URL over here>";
+        
+        videoSource.src = videoSourceURL;
+
+        video.addEventListener('timeupdate', function() {
+            
+            if (!video.seeking) {
+                supposedCurrentTime = video.currentTime;
+            }
+        });
+        
+        video.addEventListener('seeking', function() {
+            if (video.currentTime > supposedCurrentTime){
+                let delta = video.currentTime - supposedCurrentTime;
+                if (delta > 0.01) {
+                    video.currentTime = supposedCurrentTime;
+                }
+            }
+        });
+
+        video.addEventListener('ended', function() {
+            supposedCurrentTime = 0;
+            if(previousButton !== null){
+                previousButton.disabled = false;
+                previousButton.style.backgroundColor = '#2EB4E6';
+            }
+            if(nextButton !== null){
+                nextButton.disabled = false;
+                nextButton.style.backgroundColor = '#2EB4E6';
+            }
+            lastState = 'ended';
+        });
+
+        video.addEventListener('blur', function() {
+            video.pause();
+        });
+
+        
+        video.addEventListener('focus', function() {
+            if (lastState === 'playing'){
+                video.play();
+            }
+        });
+        
+        video.addEventListener('play', function() {
+            lastState = 'playing';
+        });
+
+        video.addEventListener('pause', function() {
+            lastState = 'paused';
+        });
+    </script>
+</body>
+</html>
